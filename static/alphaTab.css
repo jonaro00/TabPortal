@@ -1,0 +1,271 @@
+.at-wrap, .at-wrap *, .at-wrap *::after, .at-wrap *::before {
+    box-sizing: border-box;
+}
+
+.at-wrap {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
+    background-color: var(--page-bg-color, #f9f9f5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.at-content {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+/** Sidebar **/
+
+.at-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    max-width: 70px;
+    width: auto;
+    display: flex;
+    align-content: stretch;
+    z-index: 1001;
+    overflow: hidden;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    background: #f7f7f7;
+}
+
+.at-sidebar:hover {
+    max-width: 400px;
+    transition: max-width 0.2s;
+    overflow-y: auto;
+}
+
+.at-viewport {
+    overflow-y: auto;
+    position: absolute;
+    top: 0;
+    /* left: 70px; */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* padding-right: 20px; */
+}
+
+/** Overlay **/
+
+.at-overlay {
+    /** Fill Parent */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1002;
+    /* Blurry dark shade */
+    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.5);
+    /* center content */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+.at-overlay#at-overlay-error {
+    box-shadow: inset 0px 0px 8px 2px #9d0000;
+}
+
+.at-overlay-content {
+    /* white box with drop-shadow */
+    margin-top: 20px;
+    background: #fff;
+    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+}
+
+/** Track selector **/
+
+.at-track {
+    display: flex;
+    position: relative;
+    padding: 5px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.at-track:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.at-track>.at-track-icon, .at-track>.at-track-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.at-track>.at-track-icon {
+    flex-shrink: 0;
+    font-size: 32px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    width: 64px;
+    height: 64px;
+    margin-right: 5px;
+    align-items: center;
+}
+
+.at-track-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.at-track:hover>.at-track-icon {
+    opacity: 0.8;
+}
+
+.at-track.active {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.at-track.active>.at-track-icon {
+    color: #4972a1;
+    opacity: 1;
+}
+
+.at-track>.at-track-name {
+    font-weight: 500;
+}
+
+/** Footer **/
+
+.at-controls {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    background: var(--main-bg-color, rgb(67, 109, 157));
+    color: var(--main-text-color, #fff);
+}
+
+.at-controls>div {
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+}
+
+.at-controls>div>* {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.at-controls a.btn {
+    width: 44px;
+    height: 48px;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--main-text-color, #fff);
+    text-decoration: none;
+}
+
+.at-controls a.btn.iconHelper {
+    justify-content: right;
+    width: 28px;
+}
+
+.at-controls a.btn.disabled {
+    cursor: progress;
+    opacity: 0.5;
+}
+
+.at-controls a.active {
+    background: var(--brighter1, rgb(85, 136, 199));
+    text-decoration: none;
+}
+
+/* .at-controls .btn i {
+    vertical-align: top;
+} */
+
+.at-controls select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    height: 40px;
+    background: var(--main-bg-color, rgb(67, 109, 157));
+    padding: 4px 4px;
+    color: var(--main-text-color, #fff);
+    font-size: 16px;
+    text-align-last: left;
+    text-align: left;
+    -moz-text-align-last: left;
+    cursor: pointer;
+}
+
+.at-controls input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    max-width: 80px;
+    /* outline: none; */
+    height: 4px;
+}
+.at-controls input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 14px;
+    width: 14px;
+    border-radius: 42%;
+    background: #ffffff;
+    cursor: pointer;
+    margin-top: -1px;
+    border: 1px solid #666;
+}
+
+.at-song-info {
+    height: 48px;
+    overflow-y: auto;
+}
+
+.at-song-title {
+    font-weight: bold;
+}
+
+.at-song-album {
+    font-size: 90%;
+}
+
+.fs14 {
+    font-size: 14px;
+}
+
+.at-logo {
+    background: var(--accent-bg-color, #e4e4e4);
+    color: var(--dark-text-color, #838383);
+    font-size: 14px;
+    height: 100%;
+}
+.at-logo img {
+    height: 30px;
+}
+
+.at-cursor-bar {
+    /* Defines the color of the bar background when a bar is played */
+    background: rgba(255, 242, 0, 0.2);
+}
+
+.at-selection div {
+    /* Defines the color of the selection background */
+    background: rgba(64, 64, 255, 0.1);
+}
+
+.at-cursor-beat {
+    /* Defines the beat cursor */
+    background: rgba(73, 161, 51, 0.55);
+    width: 2px;
+    transform: translateX(2px);
+}
+
+.at-highlight * {
+    /* Defines the color of the music symbols when they are being played (svg) */
+    fill: #5d9150;
+    stroke: #5d9150;
+}

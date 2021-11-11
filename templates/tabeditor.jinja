@@ -1,0 +1,38 @@
+{% extends "tabviewer.jinja" %}
+{% block menu %}
+  {% if not readonly %}
+    <div class="tp-help">
+      <div class="tp-help-title">Editor: How to use</div>
+      Write <a href="https://www.alphatab.net/docs/alphaTex/introduction/" target="_blank">alphaTex</a> notation in the text editor
+      and press <b>Ctrl+Enter</b> to render it. Press <b>Enter</b> to re-focus on the editor.
+    </div>
+  {% endif %}
+  <div class="tp-help">
+    <div class="tp-help-title">Player: How to use</div>
+    Press <b>Space</b> to Play/Pause.
+    <b>M</b> to mute.
+    <b>Backspace</b> to reset.
+  </div>
+{% endblock %}
+{% block content %}
+  <div class="tp-editor-container">
+    <div class="tp-editor {{ 'hidden' if readonly }}">
+      <textarea id="tp-text-editor" spellcheck="false" {{ 'readonly' if readonly }}>{{ alphaTex }}</textarea>
+    </div>
+    <div class="tp-editor-bar">
+      {% if readonly %}
+      <i class="fas fa-chevron-down"></i>
+      Source
+      <i class="fas fa-chevron-down"></i>
+      {% else %}
+      <i class="fas fa-chevron-up"></i>
+      Editor
+      <i class="fas fa-chevron-up"></i>
+      {% endif %}
+    </div>
+    <div class="tp-viewer">
+      {{ super() }}
+    </div>
+  </div>
+  <script type="text/javascript" src="{{ url_for('static', filename='tabEditor.js') }}"></script>
+{% endblock %}
