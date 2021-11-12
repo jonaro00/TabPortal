@@ -105,11 +105,13 @@ body {
 }
 .tp-editor {
     flex: 4 1;
+    display: flex;
 }
 .tp-editor.hidden {
     display: none;
 }
 #tp-text-editor {
+    flex: 1;
     height: 100%;
     width: 100%;
     background-color: #333;
@@ -123,6 +125,24 @@ body {
     padding: 6px;
     padding-bottom: calc((100vh - 48px) * 0.3);
     overflow-wrap: normal;
+}
+.tp-editor-menu {
+    flex: 0 0 70px;
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    display: flex;
+    flex-direction: column-reverse;
+}
+.tp-editor-menu>*{
+    height: 56px;
+    text-align: center;
+    padding: 4px;
+}
+.tp-editor-menu a.btn {
+    font-size: 16px;
+    color: var(--main-text-color, #fff);
+    cursor: pointer;
+    text-decoration: none;
 }
 .tp-editor-bar {
     flex: 0 0 19px;

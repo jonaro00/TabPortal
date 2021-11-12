@@ -45,7 +45,7 @@ def tabs(path=''):
             return send_file(file, mimetype='text')
         return render_template('tabeditor.jinja',
                                alphaTex=file.read_text(),
-                               readonly=True,
+                               readonly=(request.args.get('edit') is None),
                                )
     abort(404)
 

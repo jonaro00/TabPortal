@@ -17,17 +17,34 @@
 {% block content %}
   <div class="tp-editor-container">
     <div class="tp-editor {{ 'hidden' if readonly }}">
-      <textarea id="tp-text-editor" spellcheck="false" {{ 'readonly' if readonly }}>{{ alphaTex }}</textarea>
+      <textarea id="tp-text-editor" spellcheck="false" {{ 'readonly' if readonly }}>{{ alphaTex or '' }}</textarea>
+      <div class="tp-editor-menu">
+        {% if readonly %}
+          <a class="btn" id="tp-edit">
+            <i class="fas fa-edit"></i>
+            <br>Edit
+          </a>
+        {% else %}
+          <a class="btn" id="tp-render">
+            <i class="fas fa-file-download"></i>
+            <br>Render
+          </a>
+          <a class="btn" id="tp-save" style="color:#888">
+            <i class="fas fa-save"></i>
+            <br>Save
+          </a>
+        {% endif %}
+      </div>
     </div>
     <div class="tp-editor-bar">
       {% if readonly %}
-      <i class="fas fa-chevron-down"></i>
-      Source
-      <i class="fas fa-chevron-down"></i>
+        <i class="fas fa-chevron-down"></i>
+        Source
+        <i class="fas fa-chevron-down"></i>
       {% else %}
-      <i class="fas fa-chevron-up"></i>
-      Editor
-      <i class="fas fa-chevron-up"></i>
+        <i class="fas fa-chevron-up"></i>
+        Editor
+        <i class="fas fa-chevron-up"></i>
       {% endif %}
     </div>
     <div class="tp-viewer">

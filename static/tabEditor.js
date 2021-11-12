@@ -1,6 +1,8 @@
 const cont = document.querySelector(".tp-editor-container")
 const editor = cont.querySelector(".tp-editor")
 const editorTextArea = cont.querySelector("#tp-text-editor")
+const editorEditBtn = cont.querySelector("#tp-edit")
+const editorRenderBtn = cont.querySelector("#tp-render")
 const editorBar = cont.querySelector(".tp-editor-bar")
 const editorBarIcons = cont.querySelectorAll(".tp-editor-bar i")
 
@@ -12,6 +14,21 @@ function toggleEditor() {
     });
 }
 editorBar.onclick = toggleEditor;
+
+editorEditBtn && (editorEditBtn.onclick = () => {
+    window.location.assign('?edit=true')
+});
+editorRenderBtn && (editorRenderBtn.onclick = () => {
+    render();
+});
+
+function render() {
+    let pos = api.tickPosition;
+    api.tex(editorTextArea.value);
+    api.tickPosition = pos;
+    editorTextArea.blur();
+    viewport.focus();
+}
 
 api.error.on(() => {
     overlayError.style.display = "flex";
@@ -25,12 +42,8 @@ document.addEventListener("keydown", (event) => {
     switch(event.key) {
         case "Enter":
             if (event.ctrlKey) { // Ctrl+Enter renders the alphaTex
-                let pos = api.tickPosition;
-                api.tex(editorTextArea.value);
-                api.tickPosition = pos;
+                render();
                 event.preventDefault(); // Consume the event so it doesn't get handled twice
-                editorTextArea.blur();
-                viewport.focus();
             }
             else if (document.activeElement == document.body){ // Enter focuses textarea
                 if(editor.classList.contains("hidden")){
