@@ -1,24 +1,60 @@
+const maxVolume = 40;
+
+const Settings = {
+    defaults: {
+        muted: false,
+        volume: Math.round(maxVolume * 0.4),
+        speed: 1.0,
+        countIn: 0,
+        metronome: 0,
+        loop: false,
+        showNotation: true,
+        layout: alphaTab.LayoutMode.Page,
+        zoom: 1.0,
+    },
+    values: {},
+    load() {
+        this.values = {...this.defaults, ...JSON.parse(localStorage.getItem("tp-settings") || "{}")};
+    },
+    save() {
+        localStorage.setItem("tp-settings", JSON.stringify(this.values));
+    },
+    getApiSettings() {
+        return {
+            core: {
+                file: wrapper.getAttribute("data-file") || null,
+            },
+            player: {
+                enablePlayer: true,
+                soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
+                scrollElement: viewport,
+                scrollOffsetX: -6,
+                scrollOffsetY: -10,
+                slide: {
+                    shiftSlideDurationRatio: 0.2,
+                },
+            },
+            display: {
+                stretchForce: 0.75,
+                staveProfile: this.values.showNotation ? 'default' : 'tab',
+                layoutMode: this.values.layout,
+                scale: this.values.zoom / 100,
+            },
+            notation: {
+                rhythmMode: this.values.showNotation ? 'hidden' : 'showwithbars',
+            },
+        }
+    },
+}
+Settings.load();
+
 // load elements
 const wrapper = document.querySelector(".at-wrap");
 const main = wrapper.querySelector(".at-main");
 const viewport = wrapper.querySelector('.at-viewport');
 
 // initialize alphatab
-const settings = {
-    file: wrapper.getAttribute("data-file") || null,
-    player: {
-        enablePlayer: true,
-        soundFont: "https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
-        scrollElement: viewport,
-        scrollOffsetX: -6,
-        scrollOffsetY: -10,
-        slide: {
-            shiftSlideDurationRatio: 0.2,
-        },
-    },
-    stretchForce: 0.75,
-};
-const api = new alphaTab.AlphaTabApi(main, settings);
+const api = new alphaTab.AlphaTabApi(main, Settings.getApiSettings());
 
 // overlay logic
 const overlay = wrapper.querySelector("#at-overlay-loading");
@@ -127,56 +163,75 @@ api.playerPositionChanged.on((e) => {
     songPosition.innerText = formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
 });
 
-let muted = false;
 const mute = wrapper.querySelector(".at-controls .at-mute");
 const muteIcon = wrapper.querySelector(".at-controls .at-mute i");
 mute.onclick = () => {
-    muted = !muted;
-    setMuted(muted);
-    localStorage.setItem('muted', muted);
-}
-function setMuted(b){
+    Settings.values.muted = !Settings.values.muted;
+    setMuted(Settings.values.muted);
+    Settings.save();
+};
+function setMuted(b) {
     muteIcon.classList.toggle("fa-volume-mute", b);
     muteIcon.classList.toggle("fa-volume-up", !b);
     api.changeTrackMute(api.score.tracks, b);
 }
 const volume = wrapper.querySelector(".at-controls .at-volume input");
-const maxVolume = 40;
 volume.max = maxVolume;
-volume.oninput = () => {
-    api.masterVolume = parseInt(volume.value) / maxVolume;
-    localStorage.setItem('volume', volume.value);
+volume.oninput = () => { // when moving slider
+    setVolume(parseInt(volume.value));
 };
+volume.onchange = () => { // when releasing slider
+    Settings.values.volume = volume.value;
+    Settings.save();
+}
+function setVolume(v) {
+    api.masterVolume = v / maxVolume;
+}
 
 
 const speed = wrapper.querySelector(".at-controls .at-speed select");
 speed.onchange = () => {
-    const playSpeed = parseInt(speed.value) / 100
-    api.playbackSpeed = playSpeed;
-    localStorage.setItem('speed', speed.value);
+    setSpeed(parseFloat(speed.value));
+    Settings.values.speed = speed.value;
+    Settings.save();
 };
+function setSpeed(f) {
+    api.playbackSpeed = f;
+}
 
 const countIn = wrapper.querySelector('.at-controls .at-count-in');
 countIn.onclick = () => {
     countIn.classList.toggle('active');
     const counting = countIn.classList.contains('active');
-    api.countInVolume = counting ? 1 : 0;
-    localStorage.setItem('countIn', counting);
+    setCountIn(counting);
+    Settings.values.countIn = counting;
+    Settings.save();
 };
+function setCountIn(b) {
+    api.countInVolume = b ? 1 : 0;
+}
 const metronome = wrapper.querySelector(".at-controls .at-metronome");
 metronome.onclick = () => {
     metronome.classList.toggle('active');
     const counting = metronome.classList.contains('active');
-    api.metronomeVolume = counting ? 1 : 0;
-    localStorage.setItem('metronome', counting);
+    setMetronome(counting);
+    Settings.values.metronome = counting;
+    Settings.save();
 };
+function setMetronome(b) {
+    api.metronomeVolume = b ? 1 : 0;
+}
 const loop = wrapper.querySelector(".at-controls .at-loop");
 loop.onclick = () => {
     loop.classList.toggle('active');
     const looping = loop.classList.contains('active');
-    api.isLooping = looping;
-    localStorage.setItem('loop', looping);
+    setLoop(looping);
+    Settings.values.loop = looping;
+    Settings.save();
 };
+function setLoop(b) {
+    api.isLooping = b;
+}
 
 api.scoreLoaded.on((score) => {
     wrapper.querySelector(".at-song-title").innerText = score.title;
@@ -196,11 +251,13 @@ showNotation.onclick = () => {
     if(showNotation.classList.contains("active")){
         api.settings.display.staveProfile = 'default';
         api.settings.notation.rhythmMode = 'hidden';
+        Settings.values.showNotation = true;
     } else {
         api.settings.display.staveProfile = 'tab';
         api.settings.notation.rhythmMode = 'showwithbars';
+        Settings.values.showNotation = false;
     }
-    localStorage.setItem('showNotation', api.settings.display.staveProfile);
+    Settings.save();
     api.updateSettings();
     api.render();
 };
@@ -211,18 +268,23 @@ layout.onclick = () => {
     api.settings.display.layoutMode = layout.classList.contains("active")
     ? alphaTab.LayoutMode.Page
     : alphaTab.LayoutMode.Horizontal;
-    localStorage.setItem('layout', api.settings.display.layoutMode);
+    Settings.values.layout = api.settings.display.layoutMode;
+    Settings.save();
     api.updateSettings();
     api.render();
 };
 
 const zoom = wrapper.querySelector(".at-controls .at-zoom select");
 zoom.onchange = () => {
-    api.settings.display.scale = parseInt(zoom.value) / 100;
-    localStorage.setItem('zoom', zoom.value);
+    setZoom(parseFloat(zoom.value));
+    Settings.values.zoom = zoom.value;
+    Settings.save();
+};
+function setZoom(f) {
+    api.settings.display.scale = f;
     api.updateSettings();
     api.render();
-};
+}
 
 viewport.onclick = () => {
     document.activeElement.blur();
@@ -253,32 +315,24 @@ document.addEventListener("keydown", (event) => {
     }
 }, true);
 
-// User settings
-// defaults
-atDefaultSettings = {
-    'muted': false,
-    'volume': Math.round(maxVolume * 0.4),
-    'speed': 100,
-    'countIn': 0,
-    'metronome': 0,
-    'loop': false,
-    'showNotation': true,
-    'layout': 'default',
-    'zoom': 100,
-}
-// load
+
+// load settings
 document.addEventListener('DOMContentLoaded', () => {
-    muted = localStorage.getItem('muted') === 'true' ? true : atDefaultSettings.muted;
-    setMuted(muted);
-    volume.value = localStorage.getItem('volume') !== null ? localStorage.getItem('volume') : atDefaultSettings.volume;
-    volume.oninput();
-    speed.value = localStorage.getItem('speed') !== null ? localStorage.getItem('speed') : atDefaultSettings.speed;
-    speed.onchange();
-    localStorage.getItem('countIn') === 'true' && countIn.onclick();
-    localStorage.getItem('metronome') === 'true' && metronome.onclick();
-    localStorage.getItem('loop') === 'true' && loop.onclick();
-    localStorage.getItem('showNotation') === 'tab' && showNotation.onclick();
-    localStorage.getItem('layout') === '1' && layout.onclick();
-    zoom.value = localStorage.getItem('zoom') !== null ? localStorage.getItem('zoom') : atDefaultSettings.zoom;
-    zoom.onchange();
+    setMuted(Settings.values.muted);
+    volume.value = Settings.values.volume;
+    setVolume(Settings.values.volume);
+    speed.value = Settings.values.speed;
+    setSpeed(parseFloat(Settings.values.speed));
+
+    Settings.values.countIn && countIn.classList.toggle("active");
+    setCountIn(Settings.values.countIn);
+    Settings.values.metronome && metronome.classList.toggle("active");
+    setMetronome(Settings.values.metronome);
+    Settings.values.loop && loop.classList.toggle("active");
+    setLoop(Settings.values.loop);
+
+    Settings.values.showNotation || showNotation.classList.toggle("active");
+    Settings.values.layout === alphaTab.LayoutMode.Page || layout.classList.toggle("active");
+    zoom.value = Settings.values.zoom;
+    setZoom(parseFloat(Settings.values.zoom));
 });
