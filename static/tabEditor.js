@@ -34,6 +34,17 @@ api.error.on(() => {
     overlayError.style.display = "flex";
 })
 
+// Warn user when leaving unsaved changes.
+let edits_made = false;
+editorTextArea.oninput = () => {
+    edits_made = true;
+}
+window.addEventListener("beforeunload", (e) => {
+    if (!edits_made) return undefined;
+    e.preventDefault();
+    return e.returnValue = `Changes made will be lost.`;
+});
+
 // keyboard
 document.addEventListener("keydown", (event) => {
     if (event.defaultPrevented) {
