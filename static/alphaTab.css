@@ -167,6 +167,10 @@
     text-decoration: none;
 }
 
+.at-controls a.btn.at-stepper {
+    width: 25px;
+}
+
 .at-controls a.btn.iconHelper {
     justify-content: right;
     width: 28px;

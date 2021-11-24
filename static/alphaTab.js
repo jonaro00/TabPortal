@@ -1,9 +1,10 @@
-const maxVolume = 40;
+const MAX_VOLUME = 40;
+const STEP_LENTGH = 100;
 
 const Settings = {
     defaults: {
         muted: false,
-        volume: Math.round(maxVolume * 0.4),
+        volume: Math.round(MAX_VOLUME * 0.4),
         speed: 1.0,
         countIn: 0,
         metronome: 0,
@@ -111,32 +112,36 @@ api.renderFinished.on(() => {
 // main player controls
 const playPause = wrapper.querySelector(".at-controls .at-player-play-pause");
 const reset = wrapper.querySelector(".at-controls .at-player-reset");
+const stepBackward = wrapper.querySelector(".at-controls .at-player-step-backward");
+const stepForward = wrapper.querySelector(".at-controls .at-player-step-forward");
 playPause.onclick = (e) => {
-    if (e.target.classList.contains("disabled")) {
-        return;
-    }
+    if (e.target.classList.contains("disabled")) return;
     api.playPause();
 };
 reset.onclick = (e) => {
-    if (e.target.classList.contains("disabled")) {
-        return;
-    }
+    if (e.target.classList.contains("disabled")) return;
     api.stop();
     viewport.scrollTo(0, 0);
+};
+stepBackward.onclick = (e) => {
+    if (e.target.classList.contains("disabled")) return;
+    api.tickPosition -= STEP_LENTGH;
+};
+stepForward.onclick = (e) => {
+    if (e.target.classList.contains("disabled")) return;
+    api.tickPosition += STEP_LENTGH;
 };
 api.playerReady.on(() => {
     playPause.classList.remove("disabled");
     reset.classList.remove("disabled");
+    stepBackward.classList.remove("disabled");
+    stepForward.classList.remove("disabled");
 });
 api.playerStateChanged.on((e) => {
     const icon = playPause.querySelector("i.fas");
-    if (e.state === alphaTab.synth.PlayerState.Playing) {
-        icon.classList.remove("fa-play");
-        icon.classList.add("fa-pause");
-    } else {
-        icon.classList.remove("fa-pause");
-        icon.classList.add("fa-play");
-    }
+    const playing = e.state === alphaTab.synth.PlayerState.Playing;
+    icon.classList.toggle("fa-play", !playing);
+    icon.classList.toggle("fa-pause", playing);
 });
 
 // song position
@@ -176,7 +181,7 @@ function setMuted(b) {
     api.changeTrackMute(api.score.tracks, b);
 }
 const volume = wrapper.querySelector(".at-controls .at-volume input");
-volume.max = maxVolume;
+volume.max = MAX_VOLUME;
 volume.oninput = () => { // when moving slider
     setVolume(parseInt(volume.value));
 };
@@ -185,7 +190,7 @@ volume.onchange = () => { // when releasing slider
     Settings.save();
 }
 function setVolume(v) {
-    api.masterVolume = v / maxVolume;
+    api.masterVolume = v / MAX_VOLUME;
 }
 
 
