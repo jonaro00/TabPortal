@@ -55,16 +55,17 @@ const main = wrapper.querySelector(".at-main");
 const viewport = wrapper.querySelector('.at-viewport');
 
 // initialize alphatab
-const api = new alphaTab.AlphaTabApi(main, Settings.getApiSettings());
+const at = new alphaTab.AlphaTabApi(main, Settings.getApiSettings());
 
 // overlay logic
 const overlay = wrapper.querySelector("#at-overlay-loading");
 const overlayError = wrapper.querySelector("#at-overlay-error");
+const overlayErrorText = wrapper.querySelector("#at-overlay-error-text");
 // const overlayContent = wrapper.querySelector(".at-overlay-content");
-api.renderStarted.on(() => {
+at.renderStarted.on(() => {
     overlay.style.display = "flex";
 });
-api.renderFinished.on(() => {
+at.renderFinished.on(() => {
     overlay.style.display = "none";
     overlayError.style.display = "none";
 });
@@ -116,28 +117,28 @@ const stepBackward = wrapper.querySelector(".at-controls .at-player-step-backwar
 const stepForward = wrapper.querySelector(".at-controls .at-player-step-forward");
 playPause.onclick = (e) => {
     if (e.target.classList.contains("disabled")) return;
-    api.playPause();
+    at.playPause();
 };
 reset.onclick = (e) => {
     if (e.target.classList.contains("disabled")) return;
-    api.stop();
+    at.stop();
     viewport.scrollTo(0, 0);
 };
 stepBackward.onclick = (e) => {
     if (e.target.classList.contains("disabled")) return;
-    api.tickPosition -= STEP_LENTGH;
+    at.tickPosition -= STEP_LENTGH;
 };
 stepForward.onclick = (e) => {
     if (e.target.classList.contains("disabled")) return;
-    api.tickPosition += STEP_LENTGH;
+    at.tickPosition += STEP_LENTGH;
 };
-api.playerReady.on(() => {
+at.playerReady.on(() => {
     playPause.classList.remove("disabled");
     reset.classList.remove("disabled");
     stepBackward.classList.remove("disabled");
     stepForward.classList.remove("disabled");
 });
-api.playerStateChanged.on((e) => {
+at.playerStateChanged.on((e) => {
     const icon = playPause.querySelector("i.fas");
     const playing = e.state === alphaTab.synth.PlayerState.Playing;
     icon.classList.toggle("fa-play", !playing);
@@ -158,7 +159,7 @@ function formatDuration(milliseconds) {
 
 const songPosition = wrapper.querySelector(".at-song-position");
 let previousTime = -1;
-api.playerPositionChanged.on((e) => {
+at.playerPositionChanged.on((e) => {
     // reduce number of UI updates to second changes.
     const currentSeconds = (e.currentTime / 1000) | 0;
     if (currentSeconds == previousTime) {
@@ -178,7 +179,7 @@ mute.onclick = () => {
 function setMuted(b) {
     muteIcon.classList.toggle("fa-volume-mute", b);
     muteIcon.classList.toggle("fa-volume-up", !b);
-    api.changeTrackMute(api.score.tracks, b);
+    at.changeTrackMute(at.score.tracks, b);
 }
 const volume = wrapper.querySelector(".at-controls .at-volume input");
 volume.max = MAX_VOLUME;
@@ -190,7 +191,7 @@ volume.onchange = () => { // when releasing slider
     Settings.save();
 }
 function setVolume(v) {
-    api.masterVolume = v / MAX_VOLUME;
+    at.masterVolume = v / MAX_VOLUME;
 }
 
 
@@ -201,7 +202,7 @@ speed.onchange = () => {
     Settings.save();
 };
 function setSpeed(f) {
-    api.playbackSpeed = f;
+    at.playbackSpeed = f;
 }
 
 const countIn = wrapper.querySelector('.at-controls .at-count-in');
@@ -213,7 +214,7 @@ countIn.onclick = () => {
     Settings.save();
 };
 function setCountIn(b) {
-    api.countInVolume = b ? 1 : 0;
+    at.countInVolume = b ? 1 : 0;
 }
 const metronome = wrapper.querySelector(".at-controls .at-metronome");
 metronome.onclick = () => {
@@ -224,7 +225,7 @@ metronome.onclick = () => {
     Settings.save();
 };
 function setMetronome(b) {
-    api.metronomeVolume = b ? 1 : 0;
+    at.metronomeVolume = b ? 1 : 0;
 }
 const loop = wrapper.querySelector(".at-controls .at-loop");
 loop.onclick = () => {
@@ -235,10 +236,10 @@ loop.onclick = () => {
     Settings.save();
 };
 function setLoop(b) {
-    api.isLooping = b;
+    at.isLooping = b;
 }
 
-api.scoreLoaded.on((score) => {
+at.scoreLoaded.on((score) => {
     wrapper.querySelector(".at-song-title").innerText = score.title;
     wrapper.querySelector(".at-song-artist").innerText = score.artist;
     wrapper.querySelector(".at-song-album").innerText = score.album ? `(${score.album})` : '';
@@ -247,36 +248,36 @@ api.scoreLoaded.on((score) => {
 });
 
 wrapper.querySelector(".at-controls .at-print").onclick = () => {
-    api.print();
+    at.print();
 };
 
 const showNotation = wrapper.querySelector(".at-controls .at-show-notation");
 showNotation.onclick = () => {
     showNotation.classList.toggle("active");
     if(showNotation.classList.contains("active")){
-        api.settings.display.staveProfile = 'default';
-        api.settings.notation.rhythmMode = 'hidden';
+        at.settings.display.staveProfile = 'default';
+        at.settings.notation.rhythmMode = 'hidden';
         Settings.values.showNotation = true;
     } else {
-        api.settings.display.staveProfile = 'tab';
-        api.settings.notation.rhythmMode = 'showwithbars';
+        at.settings.display.staveProfile = 'tab';
+        at.settings.notation.rhythmMode = 'showwithbars';
         Settings.values.showNotation = false;
     }
     Settings.save();
-    api.updateSettings();
-    api.render();
+    at.updateSettings();
+    at.render();
 };
 
 const layout = wrapper.querySelector(".at-controls .at-layout");
 layout.onclick = () => {
     layout.classList.toggle("active");
-    api.settings.display.layoutMode = layout.classList.contains("active")
+    at.settings.display.layoutMode = layout.classList.contains("active")
     ? alphaTab.LayoutMode.Page
     : alphaTab.LayoutMode.Horizontal;
-    Settings.values.layout = api.settings.display.layoutMode;
+    Settings.values.layout = at.settings.display.layoutMode;
     Settings.save();
-    api.updateSettings();
-    api.render();
+    at.updateSettings();
+    at.render();
 };
 
 const zoom = wrapper.querySelector(".at-controls .at-zoom select");
@@ -286,9 +287,9 @@ zoom.onchange = () => {
     Settings.save();
 };
 function setZoom(f) {
-    api.settings.display.scale = f;
-    api.updateSettings();
-    api.render();
+    at.settings.display.scale = f;
+    at.updateSettings();
+    at.render();
 }
 
 viewport.onclick = () => {

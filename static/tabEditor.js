@@ -23,14 +23,15 @@ editorRenderBtn && (editorRenderBtn.onclick = () => {
 });
 
 function render() {
-    let pos = api.tickPosition;
-    api.tex(editorTextArea.value);
-    api.tickPosition = pos;
+    let pos = at.tickPosition;
+    at.tex(editorTextArea.value);
+    at.tickPosition = pos;
     editorTextArea.blur();
     viewport.focus();
 }
 
-api.error.on(() => {
+at.error.on((error) => {
+    overlayErrorText.innerText = error.message;
     overlayError.style.display = "flex";
 })
 
@@ -83,4 +84,4 @@ editorTextArea.value = editorTextArea.value || `\\title ""
 
 3.3 3.3 3.3 3.3 | 2.3 2.3 2.3 2.3`;
 
-api.tex(editorTextArea.value);
+at.tex(editorTextArea.value);
