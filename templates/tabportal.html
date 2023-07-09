@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>{% block title %}Tab Portal{% endblock %}</title>
+  <link rel="stylesheet" href="/static/tabPortal.css">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/icon/favicon-16x16.png">
+  <link rel="manifest" href="/static/icon/site.webmanifest">
+
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <div class="tp-main">
+    <div class="tp-sidebar">
+      <div class="tp-header">
+        <div class="tp-logo">Tab Portal</div>
+        <div class="tp-section-link"><a href="/">Editor</a></div>
+        <div class="tp-section-link"><a href="/tabs">Explore Tabs</a></div>
+      </div>
+      <div class="tp-menu">
+        {%- block menu %}{% endblock -%}
+      </div>
+    </div>
+    <div class="tp-content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+
+</html>

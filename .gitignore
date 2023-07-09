@@ -1,5 +1,2 @@
-**/__pycache__
-venv
-
-web.log
-*.service
+target
+Secrets*.toml

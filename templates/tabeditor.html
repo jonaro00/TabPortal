@@ -1,6 +1,6 @@
-{% extends "tabviewer.jinja" %}
+{% extends "tabviewer.html" %}
 {% block menu %}
-  {% if not readonly %}
+  {% if !readonly %}
     <div class="tp-help">
       <div class="tp-help-title">Editor: How to use</div>
       Write <a href="https://www.alphatab.net/docs/alphaTex/introduction/" target="_blank">alphaTex</a> notation in the text editor
@@ -16,23 +16,30 @@
 {% endblock %}
 {% block content %}
   <div class="tp-editor-container">
-    <div class="tp-editor {{ 'hidden' if readonly }}">
-      <textarea id="tp-text-editor" spellcheck="false" {{ 'readonly' if readonly }}>{{ alphaTex or '' }}</textarea>
+    <div class="tp-editor {% if readonly %} hidden {% endif %}">
+      <textarea id="tp-text-editor" spellcheck="false" {% if readonly %} readonly {% endif %}>{{ alpha_tex }}</textarea>
       <div class="tp-editor-menu">
         {% if readonly %}
           <a class="btn" id="tp-edit">
             <i class="fas fa-edit"></i>
             <br>Edit
           </a>
+          <h3>{{ name }}</h3>
         {% else %}
           <a class="btn" id="tp-render">
             <i class="fas fa-file-download"></i>
             <br>Render
           </a>
-          <a class="btn" id="tp-save" style="color:#888">
+          <a class="btn disabled" id="tp-save">
             <i class="fas fa-save"></i>
             <br>Save
           </a>
+          <a class="btn disabled" id="tp-save-new">
+            <i class="fas fa-save"></i>
+            <br>Save As
+          </a>
+          <div>API Password: <input id="tp-api-password" type="password"></div>
+          <div>Name: <input id="tp-name" type="text" value="{{ name }}"></div>
         {% endif %}
       </div>
     </div>
@@ -48,8 +55,8 @@
       {% endif %}
     </div>
     <div class="tp-viewer">
-      {{ super() }}
+      {% call super() %}
     </div>
   </div>
-  <script type="text/javascript" src="{{ url_for('static', filename='tabEditor.js') }}"></script>
+  <script src="/static/tabEditor.js"></script>
 {% endblock %}

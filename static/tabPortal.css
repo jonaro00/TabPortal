@@ -144,6 +144,9 @@ body {
     cursor: pointer;
     text-decoration: none;
 }
+.tp-editor-menu a.btn.disabled {
+    color: #888;
+}
 .tp-editor-bar {
     flex: 0 0 19px;
     background-color: var(--main-bg-color);

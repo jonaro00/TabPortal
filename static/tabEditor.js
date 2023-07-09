@@ -3,8 +3,12 @@ const editor = cont.querySelector(".tp-editor")
 const editorTextArea = cont.querySelector("#tp-text-editor")
 const editorEditBtn = cont.querySelector("#tp-edit")
 const editorRenderBtn = cont.querySelector("#tp-render")
+const editorSaveBtn = cont.querySelector("#tp-save")
+const editorSaveNewBtn = cont.querySelector("#tp-save-new")
 const editorBar = cont.querySelector(".tp-editor-bar")
 const editorBarIcons = cont.querySelectorAll(".tp-editor-bar i")
+const editorName = cont.querySelector("#tp-name");
+const editorApiPassword = cont.querySelector("#tp-api-password");
 
 function toggleEditor() {
     editor.classList.toggle("hidden");
@@ -20,6 +24,54 @@ editorEditBtn && (editorEditBtn.onclick = () => {
 });
 editorRenderBtn && (editorRenderBtn.onclick = () => {
     render();
+});
+
+tabId = window.location.pathname.match(/\/tabs\/(\w+)/)?.[1];
+
+editorSaveBtn && (editorSaveBtn.onclick = () => {
+    if (editorSaveBtn.classList.contains("disabled")) return;
+    fetch(
+        `/api/tabs/${tabId}`,
+        {
+            method: "PUT",
+            headers: new Headers({
+                "Content-Type": "application/json",
+                "X-Tp-Pass": editorApiPassword?.value || "",
+            }),
+            body: JSON.stringify({
+                name: editorName?.value || "",
+                tex: editorTextArea.value,
+            }),
+        },
+    ).then(res => {
+        if (res.ok) {
+            edits_made = false;
+            updateEditorState();
+        }
+    });
+});
+
+editorSaveNewBtn && (editorSaveNewBtn.onclick = () => {
+    if (editorSaveNewBtn.classList.contains("disabled")) return;
+    fetch(
+        "/api/tabs",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Tp-Pass": editorApiPassword?.value || "",
+            },
+            body: JSON.stringify({
+                name: editorName?.value || "",
+                tex: editorTextArea.value,
+            }),
+        },
+    ).then(res => {
+        if (res.ok) {
+            edits_made = false;
+            updateEditorState();
+        }
+    });
 });
 
 function render() {
@@ -39,6 +91,15 @@ at.error.on((error) => {
 let edits_made = false;
 editorTextArea.oninput = () => {
     edits_made = true;
+    updateEditorState();
+}
+editorName && (editorName.oninput = () => {
+    edits_made = true;
+    updateEditorState();
+});
+function updateEditorState() {
+    if (tabId) editorSaveBtn.classList.toggle("disabled", !edits_made);
+    editorSaveNewBtn.classList.toggle("disabled", !edits_made);
 }
 window.addEventListener("beforeunload", (e) => {
     if (!edits_made) return undefined;
@@ -57,12 +118,24 @@ document.addEventListener("keydown", (event) => {
                 render();
                 event.preventDefault(); // Consume the event so it doesn't get handled twice
             }
-            else if (document.activeElement == document.body){ // Enter focuses textarea
+            else if (document.activeElement == document.body) { // Enter focuses textarea
                 if(editor.classList.contains("hidden")){
                     toggleEditor();
                 }
                 editorTextArea.focus();
                 event.preventDefault();
+            }
+            break;
+        case "s" | "S":
+            if (event.ctrlKey) {
+                if (event.shiftKey) {
+                    // Ctrl+Shift+S
+                    editorSaveNewBtn && editorSaveNewBtn.click();
+                } else {
+                    // Ctrl+S
+                    editorSaveBtn && editorSaveBtn.click();
+                }
+                event.preventDefault(); // Consume the event so it doesn't get handled twice
             }
             break;
     }

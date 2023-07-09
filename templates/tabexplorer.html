@@ -1,0 +1,17 @@
+{% extends "tabportal.html" %}
+{% block title%}Tabs | {% call super() %}{%endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/tabExplorer.css">
+{% endblock %}
+{% block content %}
+  <div class="tp-explorer">
+    <h2>Tabs</h2>
+    <ul>
+      {%- for ent in entries %}
+        <li>
+          <a href="{{ ent.path }}">{{ ent.name }}</a>
+        </li>
+      {% endfor -%}
+    </ul>
+  </div>
+{% endblock %}
