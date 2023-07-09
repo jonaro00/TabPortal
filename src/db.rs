@@ -75,3 +75,11 @@ pub async fn update_tab(
         .fetch_one(pool)
         .await
 }
+
+pub async fn delete_tab(pool: &PgPool, id: Ulid) -> Result<(), sqlx::Error> {
+    sqlx::query("DELETE FROM tabs WHERE id = $1")
+        .bind(Uuid::from(id))
+        .fetch_optional(pool)
+        .await
+        .map(|_| ())
+}

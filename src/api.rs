@@ -19,7 +19,7 @@ async fn tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) -> impl I
     db::get_tab(&state.pool, id)
         .await
         .map(|t| t.tex)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+        .map_err(|_| StatusCode::NOT_FOUND)
 }
 
 async fn all_tabs(State(state): State<Arc<AppState>>) -> impl IntoResponse {
@@ -47,6 +47,13 @@ async fn update_tab(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
+async fn delete_tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) -> impl IntoResponse {
+    db::delete_tab(&state.pool, id)
+        .await
+        .map(|_| StatusCode::OK)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
 async fn auth<B>(
     State(state): State<Arc<AppState>>,
     req: Request<B>,
@@ -66,7 +73,7 @@ async fn auth<B>(
 pub fn api_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/tabs", post(new_tab))
-        .route("/tabs/:id", put(update_tab))
+        .route("/tabs/:id", put(update_tab).delete(delete_tab))
         .layer(middleware::from_fn_with_state(state, auth))
         .route("/tabs", get(all_tabs))
         .route("/tabs/:id", get(tab))
