@@ -47,8 +47,14 @@ pub async fn get_tab(pool: &PgPool, id: Ulid) -> Result<Tab, sqlx::Error> {
         .await
 }
 
-pub async fn get_all_tabs(pool: &PgPool) -> Result<Vec<TabMeta>, sqlx::Error> {
+pub async fn get_all_tab_metas(pool: &PgPool) -> Result<Vec<TabMeta>, sqlx::Error> {
     sqlx::query_as("SELECT id, name FROM tabs ORDER BY name")
+        .fetch_all(pool)
+        .await
+}
+
+pub async fn get_all_tabs(pool: &PgPool) -> Result<Vec<Tab>, sqlx::Error> {
+    sqlx::query_as("SELECT * FROM tabs ORDER BY name")
         .fetch_all(pool)
         .await
 }

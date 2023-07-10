@@ -7,6 +7,7 @@ publish = false
 [dependencies]
 askama = "0.12.0"
 axum = "0.6.18"
+sanitize-filename = "0.4.0"
 serde = "1.0.171"
 shuttle-axum = "0.21.0"
 shuttle-runtime = "0.21.0"
@@ -17,3 +18,4 @@ sqlx = { version = "0.6.3", features = ["postgres", "runtime-tokio-rustls", "uui
 tokio = "1.29.1"
 tower-http = { version = "0.4.1", features = ["fs"] }
 ulid = { version = "1.0.0", features = ["serde", "uuid"] }
+zip = "0.6.6"

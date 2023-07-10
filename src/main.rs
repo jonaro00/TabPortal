@@ -8,7 +8,7 @@ use axum::{
     routing::get,
     Router,
 };
-use db::get_all_tabs;
+use db::get_all_tab_metas;
 use serde::Deserialize;
 use shuttle_runtime::CustomError;
 use shuttle_secrets::SecretStore;
@@ -54,7 +54,7 @@ async fn home() -> impl IntoResponse {
 }
 
 async fn explorer(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    get_all_tabs(&state.pool)
+    get_all_tab_metas(&state.pool)
         .await
         .map(|v| {
             let x: Vec<_> = v

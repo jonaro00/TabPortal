@@ -13,11 +13,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install cargo-binstall
         run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-        shell: bash
       - name: Install cargo-shuttle
         run: cargo binstall -y cargo-shuttle
-      - name: Deploy
+      - name: Deploy to Shuttle
         run: cargo shuttle deploy | awk '!/Database URI.*?$/'
-        shell: bash
         env:
           SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_DEPLOY_KEY }}

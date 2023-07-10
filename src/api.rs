@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{io::Write, sync::Arc};
 
 use axum::{
     extract::{Path, State},
@@ -22,11 +22,53 @@ async fn tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) -> impl I
         .map_err(|_| StatusCode::NOT_FOUND)
 }
 
-async fn all_tabs(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    db::get_all_tabs(&state.pool)
+async fn all_tab_metas(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    db::get_all_tab_metas(&state.pool)
         .await
         .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+async fn export_all_tabs(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let tabs = db::get_all_tabs(&state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let vec = vec![0; 1024];
+    let mut zip = zip::ZipWriter::new(std::io::Cursor::new(vec));
+
+    let zip_options =
+        zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+    let trc_options = sanitize_filename::Options {
+        truncate: true,
+        windows: true,
+        replacement: "",
+    };
+
+    for t in tabs {
+        zip.start_file(
+            sanitize_filename::sanitize_with_options(
+                format!("{}.atx", t.name),
+                trc_options.clone(),
+            ),
+            zip_options,
+        )
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        zip.write(t.tex.as_bytes())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+
+    let c = zip
+        .finish()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    drop(zip);
+
+    let pos = c.position() as usize;
+    let mut v = c.into_inner();
+    v.truncate(pos);
+
+    Result::<_, StatusCode>::Ok(v)
 }
 
 async fn new_tab(State(state): State<Arc<AppState>>, Json(b): Json<TabBody>) -> impl IntoResponse {
@@ -75,6 +117,7 @@ pub fn api_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/tabs", post(new_tab))
         .route("/tabs/:id", put(update_tab).delete(delete_tab))
         .layer(middleware::from_fn_with_state(state, auth))
-        .route("/tabs", get(all_tabs))
+        .route("/tabs", get(all_tab_metas))
         .route("/tabs/:id", get(tab))
+        .route("/tabs/tabportal_export.zip", get(export_all_tabs))
 }
