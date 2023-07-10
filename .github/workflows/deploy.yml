@@ -5,15 +5,19 @@ on:
     branches:
       - "main"
   workflow_dispatch:
-    branches:
-      - "main"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: cargo -V
-      - run: rustup -V
-      - uses: shuttle-hq/deploy-action@main
-        with:
-          deploy-key: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
+      - uses: actions/checkout@v3
+      - name: Install cargo-binstall
+        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+        shell: bash
+      - name: Install cargo-shuttle
+        run: cargo binstall -y cargo-shuttle
+      - name: Deploy
+        run: cargo shuttle deploy | awk '!/Database URI.*?$/'
+        shell: bash
+        env:
+          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
