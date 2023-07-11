@@ -53,7 +53,7 @@ async fn home() -> impl IntoResponse {
     HtmlTemplate(TabEditor::default())
 }
 
-async fn explorer(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn explorer(State(state): State<AppState>) -> impl IntoResponse {
     get_all_tab_metas(&state.pool)
         .await
         .map(|v| {
@@ -74,7 +74,7 @@ struct EditorQuery {
     edit: Option<bool>,
 }
 async fn editor(
-    State(state): State<Arc<AppState>>,
+    State(state): State<AppState>,
     Path(id): Path<Ulid>,
     Query(q): Query<EditorQuery>,
 ) -> impl IntoResponse {
@@ -92,10 +92,12 @@ async fn editor(
 }
 
 #[derive(Clone)]
-pub struct AppState {
+pub struct AppStateInner {
     pub master_pass: String,
     pub pool: PgPool,
 }
+
+pub type AppState = Arc<AppStateInner>;
 
 #[shuttle_runtime::main]
 async fn axum(
@@ -110,7 +112,7 @@ async fn axum(
 
     let master_pass = secrets.get("MASTER_PASS").expect("master password");
 
-    let state = Arc::new(AppState { pool, master_pass });
+    let state: AppState = Arc::new(AppStateInner { pool, master_pass });
 
     let router = Router::new()
         .route("/", get(home))

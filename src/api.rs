@@ -1,4 +1,4 @@
-use std::{io::Write, sync::Arc};
+use std::io::Write;
 
 use axum::{
     extract::{Path, State},
@@ -15,21 +15,21 @@ use crate::{
     AppState,
 };
 
-async fn tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) -> impl IntoResponse {
+async fn tab(State(state): State<AppState>, Path(id): Path<Ulid>) -> impl IntoResponse {
     db::get_tab(&state.pool, id)
         .await
         .map(|t| t.tex)
         .map_err(|_| StatusCode::NOT_FOUND)
 }
 
-async fn all_tab_metas(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn all_tab_metas(State(state): State<AppState>) -> impl IntoResponse {
     db::get_all_tab_metas(&state.pool)
         .await
         .map(Json)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn export_all_tabs(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn export_all_tabs(State(state): State<AppState>) -> impl IntoResponse {
     let tabs = db::get_all_tabs(&state.pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -71,7 +71,7 @@ async fn export_all_tabs(State(state): State<Arc<AppState>>) -> impl IntoRespons
     Result::<_, StatusCode>::Ok(v)
 }
 
-async fn new_tab(State(state): State<Arc<AppState>>, Json(b): Json<TabBody>) -> impl IntoResponse {
+async fn new_tab(State(state): State<AppState>, Json(b): Json<TabBody>) -> impl IntoResponse {
     db::create_tab(&state.pool, b.name, b.tex)
         .await
         .map(|_| StatusCode::OK)
@@ -79,7 +79,7 @@ async fn new_tab(State(state): State<Arc<AppState>>, Json(b): Json<TabBody>) -> 
 }
 
 async fn update_tab(
-    State(state): State<Arc<AppState>>,
+    State(state): State<AppState>,
     Path(id): Path<Ulid>,
     Json(b): Json<TabBody>,
 ) -> impl IntoResponse {
@@ -89,7 +89,7 @@ async fn update_tab(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn delete_tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) -> impl IntoResponse {
+async fn delete_tab(State(state): State<AppState>, Path(id): Path<Ulid>) -> impl IntoResponse {
     db::delete_tab(&state.pool, id)
         .await
         .map(|_| StatusCode::OK)
@@ -97,7 +97,7 @@ async fn delete_tab(State(state): State<Arc<AppState>>, Path(id): Path<Ulid>) ->
 }
 
 async fn auth<B>(
-    State(state): State<Arc<AppState>>,
+    State(state): State<AppState>,
     req: Request<B>,
     next: Next<B>,
 ) -> Result<Response, StatusCode> {
@@ -112,7 +112,7 @@ async fn auth<B>(
     }
 }
 
-pub fn api_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+pub fn api_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/tabs", post(new_tab))
         .route("/tabs/:id", put(update_tab).delete(delete_tab))
