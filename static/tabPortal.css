@@ -72,7 +72,7 @@ body {
 }
 
 .tp-sidebar .tp-menu {
-
+    flex-grow: 1;
 }
 
 .tp-sidebar .tp-menu .tp-help {
@@ -88,6 +88,10 @@ body {
     font-weight: bold;
     border-bottom: 1px solid var(--darker1);
     margin-bottom: .2em;
+}
+
+.tp-sidebar .tp-credits {
+    font-size: 60%;
 }
 
 .tp-content {

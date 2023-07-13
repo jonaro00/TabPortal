@@ -19,19 +19,25 @@ use ulid::Ulid;
 mod api;
 mod db;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[derive(Template)]
 #[template(path = "tabportal.html")]
-struct TabPortal;
+struct TabPortal<'a> {
+    version: &'a str,
+}
 
 #[derive(Template)]
 #[template(path = "tabviewer.html")]
-struct TabViewer {
+struct TabViewer<'a> {
+    version: &'a str,
     tab_file: String,
 }
 
 #[derive(Template)]
 #[template(path = "tabexplorer.html")]
-struct TabExplorer {
+struct TabExplorer<'a> {
+    version: &'a str,
     entries: Vec<Entry>,
 }
 
@@ -43,6 +49,7 @@ struct Entry {
 #[derive(Default, Template)]
 #[template(path = "tabeditor.html")]
 struct TabEditor<'a> {
+    version: &'a str,
     readonly: bool,
     alpha_tex: String,
     name: String,
@@ -50,21 +57,27 @@ struct TabEditor<'a> {
 }
 
 async fn home() -> impl IntoResponse {
-    HtmlTemplate(TabEditor::default())
+    HtmlTemplate(TabEditor {
+        version: VERSION,
+        ..Default::default()
+    })
 }
 
 async fn explorer(State(state): State<AppState>) -> impl IntoResponse {
     get_all_tab_metas(&state.pool)
         .await
         .map(|v| {
-            let x: Vec<_> = v
+            let entries: Vec<_> = v
                 .iter()
                 .map(|t| Entry {
                     name: t.name.clone(),
                     path: format!("/tabs/{}", t.id),
                 })
                 .collect();
-            HtmlTemplate(TabExplorer { entries: x })
+            HtmlTemplate(TabExplorer {
+                entries,
+                version: VERSION,
+            })
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
@@ -82,6 +95,7 @@ async fn editor(
         .await
         .map(|t| {
             HtmlTemplate(TabEditor {
+                version: VERSION,
                 readonly: q.edit.is_none(),
                 alpha_tex: t.tex,
                 name: t.name,
