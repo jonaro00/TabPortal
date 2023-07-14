@@ -10,12 +10,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install cargo-binstall
-        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-      - name: Install cargo-shuttle
-        run: cargo binstall -y cargo-shuttle
-      - name: Deploy to Shuttle
-        run: cargo shuttle deploy | awk '!/Database URI.*?$/'
-        env:
-          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
+      - uses: jonaro00/shuttle-deploy-action@feat/install-binaries
+        with:
+          deploy-key: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
+          name: elonmusk
+          no-test: true
+          cargo-shuttle-version: "0.21.0"
