@@ -13,6 +13,4 @@ jobs:
       - uses: jonaro00/shuttle-deploy-action@feat/install-binaries
         with:
           deploy-key: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
-          name: elonmusk
           no-test: true
-          cargo-shuttle-version: "0.21.0"
