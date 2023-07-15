@@ -9,6 +9,8 @@ const editorBar = cont.querySelector(".tp-editor-bar")
 const editorBarIcons = cont.querySelectorAll(".tp-editor-bar i")
 const editorName = cont.querySelector("#tp-name");
 const editorApiPassword = cont.querySelector("#tp-api-password");
+const menuBpmBtn = document.querySelector("#tp-bpm-btn");
+const menuBpmSpan = document.querySelector("#tp-bpm-result");
 
 function toggleEditor() {
     editor.classList.toggle("hidden");
@@ -140,6 +142,30 @@ document.addEventListener("keydown", (event) => {
             break;
     }
 }, true);
+
+
+let firstClick = -2000;
+let lastClick = -2000;
+let clickCount = 0;
+
+menuBpmBtn && menuBpmSpan && (menuBpmBtn.onclick = (e) => {
+    let t = e.timeStamp;
+    if (t - lastClick > 2000) {
+        clickCount = 1;
+        firstClick = lastClick = t;
+        menuBpmSpan.innerHTML = "-";
+        return;
+    }
+
+    clickCount++;
+    let int = (t - firstClick) / (clickCount - 1);
+    let ps = 1000 / int;
+    let bpm = 60 * ps;
+    console.log(bpm);
+    menuBpmSpan.innerHTML = Math.floor(bpm + 0.5);
+
+    lastClick = t;
+});
 
 editorTextArea.value = editorTextArea.value || `\\title ""
 \\artist ""
