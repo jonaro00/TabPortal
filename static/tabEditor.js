@@ -144,13 +144,14 @@ document.addEventListener("keydown", (event) => {
 }, true);
 
 
-let firstClick = -2000;
-let lastClick = -2000;
+const BPM_RESET_MS = 2000;
+let firstClick = -BPM_RESET_MS;
+let lastClick = -BPM_RESET_MS;
 let clickCount = 0;
 
 menuBpmBtn && menuBpmSpan && (menuBpmBtn.onclick = (e) => {
     let t = e.timeStamp;
-    if (t - lastClick > 2000) {
+    if (t - lastClick > BPM_RESET_MS) {
         clickCount = 1;
         firstClick = lastClick = t;
         menuBpmSpan.innerHTML = "-";

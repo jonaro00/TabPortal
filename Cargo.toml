@@ -1,6 +1,6 @@
 [package]
 name = "tab-portal"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 publish = false
 
@@ -17,5 +17,6 @@ shuttle-static-folder = "0.21.0"
 sqlx = { version = "0.6.3", features = ["postgres", "runtime-tokio-rustls", "uuid"] }
 tokio = "1.29.1"
 tower-http = { version = "0.4.1", features = ["fs"] }
+tower-livereload = "0.8.0"
 ulid = { version = "1.0.0", features = ["serde", "uuid"] }
 zip = "0.6.6"

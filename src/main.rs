@@ -128,13 +128,17 @@ async fn axum(
 
     let state: AppState = Arc::new(AppStateInner { pool, master_pass });
 
-    let router = Router::new()
+    let mut router = Router::new()
         .route("/", get(home))
         .route("/tabs", get(explorer))
         .route("/tabs/:id", get(editor))
         .nest("/api", api::api_router(state.clone()))
         .nest_service("/static", ServeDir::new(static_folder))
         .with_state(state);
+
+    if cfg!(debug_assertions) {
+        router = router.layer(tower_livereload::LiveReloadLayer::new());
+    }
 
     Ok(router.into())
 }
