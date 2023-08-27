@@ -1,0 +1,161 @@
+<div class="tp-editor-container">
+  <div class="tp-editor {% if readonly %} hidden {% endif %}">
+    <textarea id="tp-text-editor" spellcheck="false" {% if readonly %} readonly {% endif %}>{{ alpha_tex }}</textarea>
+    <div class="tp-editor-menu">
+      {% if readonly %}
+      <a class="btn" id="tp-edit" _="on click toggle .hey on me then toggle readonly on #tp-text-editor">
+        <i class="fas fa-edit"></i>
+        <br>Edit
+      </a>
+      <h3>{{ name }}</h3>
+      {% else %}
+      <a class="btn" id="tp-render">
+        <i class="fas fa-file-download"></i>
+        <br>Render
+      </a>
+      <a class="btn disabled" id="tp-save">
+        <i class="fas fa-save"></i>
+        <br>Save
+      </a>
+      <a class="btn disabled" id="tp-save-new">
+        <i class="fas fa-save"></i>
+        <br>Save As
+      </a>
+      <div>API Password: <input id="tp-api-password" type="password"></div>
+      <div>Name: <input id="tp-name" type="text" value="{{ name }}"></div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="tp-editor-bar">
+    {% if readonly %}
+    <i class="fas fa-chevron-down"></i>
+    Source
+    <i class="fas fa-chevron-down"></i>
+    {% else %}
+    <i class="fas fa-chevron-up"></i>
+    Editor
+    <i class="fas fa-chevron-up"></i>
+    {% endif %}
+  </div>
+  <div class="tp-viewer">
+    <div class="at-wrap" data-file="{{ tab_file }}">
+      <div class="at-content">
+        <div id="at-overlay-loading" class="at-overlay">
+          <div class="at-overlay-content">
+            Music sheet is loading
+          </div>
+        </div>
+        <div id="at-overlay-error" class="at-overlay" style="display:none">
+          <div id="at-overlay-error-text" class="at-overlay-content">
+            Error loading music sheet
+          </div>
+        </div>
+        <!-- <div class="at-sidebar">
+            <div class="at-sidebar-content">
+              <div class="at-track-list"></div>
+            </div>
+          </div> -->
+        <div class="at-viewport">
+          <div class="at-main"></div>
+        </div>
+      </div>
+      <div class="at-controls">
+        <div class="at-controls-left">
+          <a class="btn at-player-reset disabled" title="Reset [Backspace]">
+            <i class="fas fa-step-backward"></i>
+          </a>
+          <a class="btn at-player-play-pause disabled" title="Play/Pause [Space]">
+            <i class="fas fa-play"></i>
+          </a>
+          <a class="btn at-player-step-backward at-stepper disabled" title="Step backward (100 MIDI ticks)">
+            <i class="fas fa-caret-left"></i>
+          </a>
+          <a class="btn at-player-step-forward at-stepper disabled" title="Step forward (100 MIDI ticks)">
+            <i class="fas fa-caret-right"></i>
+          </a>
+          <div class="at-song-position">00:00 / 00:00</div>
+          <a class="btn iconHelper at-mute" title="Mute [M]">
+            <i class="fas fa-volume-up"></i>
+          </a>
+          <div class="at-volume">
+            <input type="range" title="Volume" />
+          </div>
+          <div class="at-speed">
+            <i class="fas fa-angle-double-right fs14"></i>
+            <select title="Speed">
+              <option value="0.3">0.3x</option>
+              <option value="0.5">0.5x</option>
+              <option value="0.7">0.7x</option>
+              <option value="0.8">0.8x</option>
+              <option value="0.9">0.9x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.1">1.1x</option>
+              <option value="1.2">1.2x</option>
+              <option value="1.3">1.3x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+          </div>
+          <a class="btn toggle at-count-in" title="Count-in">
+            <i class="fas fa-hourglass-half"></i>
+          </a>
+          <a class="btn at-metronome" title="Metronome">
+            <i class="fas fa-tachometer-alt"></i>
+          </a>
+          <a class="btn at-loop" title="Loop">
+            <i class="fas fa-retweet"></i>
+          </a>
+        </div>
+        <div class="at-song-info">
+          <div>
+            <div>
+              <span class="at-song-artist"></span>&nbsp;-&nbsp;<span class="at-song-title"></span><br><span
+                class="at-song-album"></span>
+            </div>
+          </div>
+        </div>
+        <div class="at-controls-right">
+          <a class="btn at-print" title="Print">
+            <i class="fas fa-print"></i>
+          </a>
+          <a class="btn at-show-notation active" title="Show music notation">
+            <i class="fas fa-music"></i>
+          </a>
+          <a class="btn at-layout active" title="Page/Horizontal layout">
+            <i class="fas fa-file-alt"></i>
+          </a>
+          <div class="at-zoom">
+            <i class="fas fa-search fs14"></i>
+            <select title="Zoom">
+              <option value="0.25">25%</option>
+              <option value="0.5">50%</option>
+              <option value="0.75">75%</option>
+              <option value="0.9">90%</option>
+              <option value="1" selected>100%</option>
+              <option value="1.1">110%</option>
+              <option value="1.25">125%</option>
+              <option value="1.5">150%</option>
+              <option value="2">200%</option>
+            </select>
+          </div>
+          <div class="at-logo">powered by<a href="https://www.alphatab.net/" target="_blank"><img
+                src="/static/alphatab.png"></a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <template id="at-track-template">
+        <div class="at-track">
+          <div class="at-track-icon">
+            <i class="fas fa-guitar"></i>
+          </div>
+          <div class="at-track-details">
+            <div class="at-track-name"></div>
+          </div>
+        </div>
+      </template> -->
+
+    <script src="/static/alphaTab.js"></script>
+  </div>
+</div>
+<script src="/static/tabEditor.js"></script>

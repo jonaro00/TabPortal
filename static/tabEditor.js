@@ -1,7 +1,6 @@
 const cont = document.querySelector(".tp-editor-container")
 const editor = cont.querySelector(".tp-editor")
 const editorTextArea = cont.querySelector("#tp-text-editor")
-const editorEditBtn = cont.querySelector("#tp-edit")
 const editorRenderBtn = cont.querySelector("#tp-render")
 const editorSaveBtn = cont.querySelector("#tp-save")
 const editorSaveNewBtn = cont.querySelector("#tp-save-new")
@@ -21,9 +20,6 @@ function toggleEditor() {
 }
 editorBar.onclick = toggleEditor;
 
-editorEditBtn && (editorEditBtn.onclick = () => {
-    window.location.assign('?edit=true')
-});
 editorRenderBtn && (editorRenderBtn.onclick = () => {
     render();
 });

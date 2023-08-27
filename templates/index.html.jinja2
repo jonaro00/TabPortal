@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>{% block title %}Tab Portal{% endblock %}</title>
+  <title>Tab Portal</title>
   <link rel="stylesheet" href="/static/tabPortal.css">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/static/icon/apple-touch-icon.png">
@@ -11,7 +11,14 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/static/icon/favicon-16x16.png">
   <link rel="manifest" href="/static/icon/site.webmanifest">
 
-  {% block head %}{% endblock %}
+  <script src="https://unpkg.com/htmx.org@1.9.5"
+    integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+    crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@alpha/dist/alphaTab.js"></script>
+  <script async src="https://kit.fontawesome.com/067013981a.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/static/alphaTab.css">
 </head>
 
 <body>
@@ -23,7 +30,7 @@
         <div class="tp-section-link"><a href="/tabs">Explore Tabs</a></div>
       </div>
       <div class="tp-menu">
-        {%- block menu %}{% endblock -%}
+        {{ module("menu") }}
       </div>
       <div class="tp-credits">
         v{{ version }} -
@@ -31,7 +38,7 @@
       </div>
     </div>
     <div class="tp-content">
-      {% block content %}{% endblock %}
+      {{ module("tabeditor") }}
     </div>
   </div>
 </body>

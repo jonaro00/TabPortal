@@ -5,8 +5,8 @@ edition = "2021"
 publish = false
 
 [dependencies]
-askama = "0.12.0"
 axum = "0.6.20"
+hyro = { git = "https://github.com/carterisonline/hyro", features = ["framework-axum"]}
 sanitize-filename = "0.5.0"
 serde = "1.0.188"
 shuttle-axum = "0.24.0"
@@ -14,7 +14,7 @@ shuttle-runtime = "0.24.0"
 shuttle-secrets = "0.24.0"
 shuttle-shared-db = { version = "0.24.0", features = ["postgres-rustls"] }
 shuttle-static-folder = "0.24.0"
-sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio-rustls", "uuid"] }
+sqlx = { version = "0.7.1", features = ["uuid"] }
 tokio = "1.32.0"
 tower-http = { version = "0.4.3", features = ["fs"] }
 tower-livereload = "0.8.0"

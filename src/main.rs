@@ -1,6 +1,5 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{borrow::Cow, path::PathBuf, sync::Arc};
 
-use askama::Template;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -9,6 +8,8 @@ use axum::{
     Router,
 };
 use db::get_all_tab_metas;
+use hyro::prelude::*;
+use hyro::{context, Template};
 use serde::Deserialize;
 use shuttle_runtime::CustomError;
 use shuttle_secrets::SecretStore;
@@ -21,91 +22,93 @@ mod db;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-#[derive(Template)]
-#[template(path = "tabportal.html")]
-struct TabPortal<'a> {
-    version: &'a str,
+// #[derive(Template)]
+// #[template(path = "tabportal.html")]
+// struct TabPortal<'a> {
+//     version: &'a str,
+// }
+
+// #[derive(Template)]
+// #[template(path = "tabexplorer.html")]
+// struct TabExplorer<'a> {
+//     version: &'a str,
+//     entries: Vec<Entry>,
+// }
+
+// struct Entry {
+//     name: String,
+//     path: String,
+// }
+
+// #[derive(Default, Template)]
+// #[template(path = "tabeditor.html")]
+// struct TabEditor<'a> {
+//     version: &'a str,
+//     tab_file: &'a str,
+//     readonly: bool,
+//     alpha_tex: String,
+//     name: String,
+// }
+
+async fn index(template: Template) -> Html<Cow<'static, str>> {
+    template.render(context! {
+        version => VERSION,
+    })
 }
 
-#[derive(Template)]
-#[template(path = "tabviewer.html")]
-struct TabViewer<'a> {
-    version: &'a str,
-    tab_file: String,
+#[derive(Deserialize)]
+struct MenuQuery {
+    editor: Option<bool>,
 }
-
-#[derive(Template)]
-#[template(path = "tabexplorer.html")]
-struct TabExplorer<'a> {
-    version: &'a str,
-    entries: Vec<Entry>,
-}
-
-struct Entry {
-    name: String,
-    path: String,
-}
-
-#[derive(Default, Template)]
-#[template(path = "tabeditor.html")]
-struct TabEditor<'a> {
-    version: &'a str,
-    readonly: bool,
-    alpha_tex: String,
-    name: String,
-    tab_file: &'a str,
-}
-
-async fn home() -> impl IntoResponse {
-    HtmlTemplate(TabEditor {
-        version: VERSION,
-        ..Default::default()
+async fn menu(Query(q): Query<MenuQuery>, template: Template) -> Html<Cow<'static, str>> {
+    template.render(context! {
+        editor => q.editor.unwrap_or_default(),
     })
 }
 
 async fn explorer(State(state): State<AppState>) -> impl IntoResponse {
-    get_all_tab_metas(&state.pool)
-        .await
-        .map(|v| {
-            let entries: Vec<_> = v
-                .iter()
-                .map(|t| Entry {
-                    name: t.name.clone(),
-                    path: format!("/tabs/{}", t.id),
-                })
-                .collect();
-            HtmlTemplate(TabExplorer {
-                entries,
-                version: VERSION,
-            })
-        })
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    // get_all_tab_metas(&state.pool)
+    //     .await
+    //     .map(|v| {
+    //         let entries: Vec<_> = v
+    //             .iter()
+    //             .map(|t| Entry {
+    //                 name: t.name.clone(),
+    //                 path: format!("/tabs/{}", t.id),
+    //             })
+    //             .collect();
+    //         HtmlTemplate(TabExplorer {
+    //             entries,
+    //             version: VERSION,
+    //         })
+    //     })
+    //     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[derive(Deserialize)]
 struct EditorQuery {
     edit: Option<bool>,
 }
-async fn editor(
+async fn tabeditor(
     State(state): State<AppState>,
     Path(id): Path<Ulid>,
     Query(q): Query<EditorQuery>,
+    template: Template,
 ) -> impl IntoResponse {
     db::get_tab(&state.pool, id)
         .await
         .map(|t| {
-            HtmlTemplate(TabEditor {
-                version: VERSION,
-                readonly: q.edit.is_none(),
-                alpha_tex: t.tex,
-                name: t.name,
-                tab_file: "",
+            template.render(context! {
+                // editor => q.editor.unwrap_or_default(),
+                readonly => q.edit.is_none(),
+                alpha_tex => t.tex,
+                name => t.name,
             })
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppStateInner {
     pub master_pass: String,
     pub pool: PgPool,
@@ -118,7 +121,7 @@ async fn axum(
     #[shuttle_secrets::Secrets] secrets: SecretStore,
     #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
     #[shuttle_shared_db::Postgres] pool: PgPool,
-) -> shuttle_axum::ShuttleAxum {
+) -> Result<AxumService, shuttle_runtime::Error> {
     sqlx::migrate!()
         .run(&pool)
         .await
@@ -129,34 +132,36 @@ async fn axum(
     let state: AppState = Arc::new(AppStateInner { pool, master_pass });
 
     let mut router = Router::new()
-        .route("/", get(home))
+        .route("/", get(index))
+        .route("/menu", get(menu))
         .route("/tabs", get(explorer))
-        .route("/tabs/:id", get(editor))
+        .route("/tabs/:id", get(tabeditor))
+        .route("/tabeditor", get(tabeditor))
         .nest("/api", api::api_router(state.clone()))
         .nest_service("/static", ServeDir::new(static_folder))
         .with_state(state);
 
-    if cfg!(debug_assertions) {
-        router = router.layer(tower_livereload::LiveReloadLayer::new());
-    }
+    // if cfg!(debug_assertions) {
+    //     router = router.layer(tower_livereload::LiveReloadLayer::new());
+    // }
 
-    Ok(router.into())
+    Ok(AxumService(router))
 }
 
-struct HtmlTemplate<T>(T);
+use std::net::SocketAddr;
 
-impl<T> IntoResponse for HtmlTemplate<T>
-where
-    T: Template,
-{
-    fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Html(html).into_response(),
-            Err(err) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to render template. Error: {}", err),
-            )
-                .into_response(),
-        }
+pub struct AxumService(pub axum::Router);
+
+#[shuttle_runtime::async_trait]
+impl shuttle_runtime::Service for AxumService {
+    async fn bind(mut self, _addr: SocketAddr) -> Result<(), shuttle_runtime::Error> {
+        // let s = addr.to_string();
+        axum::Server::from_tcp(hyro::bind("127.0.0.1:8000"))
+            .unwrap()
+            .serve(self.0.into_service_with_hmr())
+            .await
+            .map_err(shuttle_runtime::CustomError::new)?;
+
+        Ok(())
     }
 }

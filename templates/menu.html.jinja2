@@ -1,0 +1,22 @@
+{% if editor %}
+<div class="tp-help">
+  <div class="tp-help-title">Editor: How to use</div>
+  Write <a href="https://www.alphatab.net/docs/alphaTex/introduction/" target="_blank">alphaTex</a> notation in the text
+  editor.
+  Press <b>Esc</b> to focus on the player.
+</div>
+{% endif %}
+<div class="tp-help">
+  <div class="tp-help-title">Player: How to use</div>
+  Press <b>Space</b> to Play/Pause.
+  <b>M</b> to mute.
+  <b>Backspace</b> to reset.
+  <b>Enter</b> to re-focus on the editor.
+</div>
+{% if editor %}
+<div class="tp-help">
+  <div class="tp-help-title">BPM counter</div>
+  <button id="tp-bpm-btn">Click</button>
+  <span id="tp-bpm-result"></span>
+</div>
+{% endif %}

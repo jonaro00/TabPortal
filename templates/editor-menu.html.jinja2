@@ -1,0 +1,24 @@
+<div class="tp-editor-menu">
+  {% if !editing %}
+    <a class="btn" id="tp-edit" _="on click toggle .hey on me then toggle readonly on #tp-text-editor">
+      <i class="fas fa-edit"></i>
+      <br>Edit
+    </a>
+    <h3>{{ name }}</h3>
+  {% else %}
+    <a class="btn" id="tp-render">
+      <i class="fas fa-file-download"></i>
+      <br>Render
+    </a>
+    <a class="btn disabled" id="tp-save">
+      <i class="fas fa-save"></i>
+      <br>Save
+    </a>
+    <a class="btn disabled" id="tp-save-new">
+      <i class="fas fa-save"></i>
+      <br>Save As
+    </a>
+    <div>API Password: <input id="tp-api-password" type="password"></div>
+    <div>Name: <input id="tp-name" type="text" value="{{ name }}"></div>
+  {% endif %}
+</div>
