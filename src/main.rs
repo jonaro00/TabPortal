@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::sync::Arc;
 
 use askama::Template;
 use axum::{
@@ -116,7 +116,6 @@ pub type AppState = Arc<AppStateInner>;
 #[shuttle_runtime::main]
 async fn axum(
     #[shuttle_secrets::Secrets] secrets: SecretStore,
-    #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
     #[shuttle_shared_db::Postgres] pool: PgPool,
 ) -> shuttle_axum::ShuttleAxum {
     sqlx::migrate!()
@@ -133,7 +132,7 @@ async fn axum(
         .route("/tabs", get(explorer))
         .route("/tabs/:id", get(editor))
         .nest("/api", api::api_router(state.clone()))
-        .nest_service("/static", ServeDir::new(static_folder))
+        .nest_service("/static", ServeDir::new("static"))
         .with_state(state);
 
     if cfg!(debug_assertions) {
