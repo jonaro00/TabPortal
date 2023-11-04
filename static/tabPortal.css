@@ -29,7 +29,7 @@ body {
     margin: auto;
     box-shadow: 0px 0px 0px 1px #00000062;
     background-color: #f3f3f3;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: sans-serif;
 }
 
 .tp-main a, .tp-main a:visited {

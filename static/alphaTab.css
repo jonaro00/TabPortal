@@ -3,7 +3,7 @@
 }
 
 .at-wrap {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: sans-serif;
     font-size: 12px;
     background-color: var(--page-bg-color, #f9f9f5);
     display: flex;
