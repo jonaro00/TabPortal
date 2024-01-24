@@ -1,6 +1,7 @@
 use std::io::Write;
 
 use axum::{
+    body::Body,
     extract::{Path, State},
     http::{Request, StatusCode},
     middleware::{self, Next},
@@ -96,10 +97,10 @@ async fn delete_tab(State(state): State<AppState>, Path(id): Path<Ulid>) -> impl
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
-async fn auth<B>(
+async fn auth(
     State(state): State<AppState>,
-    req: Request<B>,
-    next: Next<B>,
+    req: Request<Body>,
+    next: Next,
 ) -> Result<Response, StatusCode> {
     let auth_header = req
         .headers()
