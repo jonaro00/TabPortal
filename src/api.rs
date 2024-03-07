@@ -109,7 +109,7 @@ async fn auth(
 
     match auth_header {
         Some(auth_header) if auth_header == state.master_pass => Ok(next.run(req).await),
-        _ => return Err(StatusCode::UNAUTHORIZED),
+        _ => Err(StatusCode::UNAUTHORIZED),
     }
 }
 
