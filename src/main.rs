@@ -11,7 +11,7 @@ use axum::{
 use db::get_all_tab_metas;
 use serde::Deserialize;
 use shuttle_runtime::CustomError;
-use shuttle_secrets::SecretStore;
+use shuttle_runtime::SecretStore;
 use sqlx::PgPool;
 use tower_http::services::ServeDir;
 use ulid::Ulid;
@@ -115,7 +115,7 @@ pub type AppState = Arc<AppStateInner>;
 
 #[shuttle_runtime::main]
 async fn axum(
-    #[shuttle_secrets::Secrets] secrets: SecretStore,
+    #[shuttle_runtime::Secrets] secrets: SecretStore,
     #[shuttle_shared_db::Postgres] pool: PgPool,
 ) -> shuttle_axum::ShuttleAxum {
     sqlx::migrate!()

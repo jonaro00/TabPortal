@@ -39,7 +39,7 @@ async fn export_all_tabs(State(state): State<AppState>) -> impl IntoResponse {
     let mut zip = zip::ZipWriter::new(std::io::Cursor::new(vec));
 
     let zip_options =
-        zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+        zip::write::FileOptions::<()>::default().compression_method(zip::CompressionMethod::Stored);
 
     let trc_options = sanitize_filename::Options {
         truncate: true,
@@ -63,7 +63,6 @@ async fn export_all_tabs(State(state): State<AppState>) -> impl IntoResponse {
     let c = zip
         .finish()
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    drop(zip);
 
     let pos = c.position() as usize;
     let mut v = c.into_inner();
