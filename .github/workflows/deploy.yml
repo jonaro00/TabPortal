@@ -3,14 +3,14 @@ name: Shuttle deploy
 on:
   push:
     branches:
-      - "main"
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: shuttle-hq/deploy-action@main
+      - uses: shuttle-hq/deploy-action@v2
         with:
-          deploy-key: ${{ secrets.SHUTTLE_DEPLOY_KEY }}
-          no-test: true
+          shuttle-api-key: ${{ secrets.SHUTTLE_API_KEY }}
+          project-id: proj_01JATFBD0945CHRFZB4KMDAR8V

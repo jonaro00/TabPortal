@@ -2,3 +2,5 @@ target
 Secrets*.toml
 .vscode
 .env
+/target
+.shuttle*
