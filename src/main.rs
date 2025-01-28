@@ -1,16 +1,15 @@
 use std::sync::Arc;
 
-use askama::Template;
+use askama_axum::Template;
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
-    response::{Html, IntoResponse, Response},
+    response::IntoResponse,
     routing::get,
     Router,
 };
 use db::get_all_tab_metas;
 use serde::Deserialize;
-use shuttle_runtime::CustomError;
 use shuttle_runtime::SecretStore;
 use sqlx::PgPool;
 use tower_http::services::ServeDir;
@@ -57,10 +56,10 @@ struct TabEditor<'a> {
 }
 
 async fn home() -> impl IntoResponse {
-    HtmlTemplate(TabEditor {
+    TabEditor {
         version: VERSION,
         ..Default::default()
-    })
+    }
 }
 
 async fn explorer(State(state): State<AppState>) -> impl IntoResponse {
@@ -74,10 +73,10 @@ async fn explorer(State(state): State<AppState>) -> impl IntoResponse {
                     path: format!("/tabs/{}", t.id),
                 })
                 .collect();
-            HtmlTemplate(TabExplorer {
+            TabExplorer {
                 entries,
                 version: VERSION,
-            })
+            }
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
@@ -93,14 +92,12 @@ async fn editor(
 ) -> impl IntoResponse {
     db::get_tab(&state.pool, id)
         .await
-        .map(|t| {
-            HtmlTemplate(TabEditor {
-                version: VERSION,
-                readonly: q.edit.is_none(),
-                alpha_tex: t.tex,
-                name: t.name,
-                tab_file: "",
-            })
+        .map(|t| TabEditor {
+            version: VERSION,
+            readonly: q.edit.is_none(),
+            alpha_tex: t.tex,
+            name: t.name,
+            tab_file: "",
         })
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
@@ -118,10 +115,7 @@ async fn axum(
     #[shuttle_runtime::Secrets] secrets: SecretStore,
     #[shuttle_shared_db::Postgres] pool: PgPool,
 ) -> shuttle_axum::ShuttleAxum {
-    sqlx::migrate!()
-        .run(&pool)
-        .await
-        .map_err(CustomError::new)?;
+    sqlx::migrate!().run(&pool).await.unwrap();
 
     let master_pass = secrets.get("MASTER_PASS").expect("master password");
 
@@ -140,22 +134,4 @@ async fn axum(
     }
 
     Ok(router.into())
-}
-
-struct HtmlTemplate<T>(T);
-
-impl<T> IntoResponse for HtmlTemplate<T>
-where
-    T: Template,
-{
-    fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Html(html).into_response(),
-            Err(err) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to render template. Error: {}", err),
-            )
-                .into_response(),
-        }
-    }
 }
